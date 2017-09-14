@@ -26,7 +26,7 @@
 #define ZONE_RADIUS 0.02
 
 
-#define MAXIUM_CYCLE 1
+#define MAXIUM_CYCLE 5
 double surface_function(double x)
 {
     double y;

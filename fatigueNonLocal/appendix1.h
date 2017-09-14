@@ -58,7 +58,7 @@ struct GRAIN_lxy
 
 
 
-void HuyenMorel_marco_lxy (int ninc, int nelts, ELEMENT_lxy element_lxy[], double alpha, double gamma, double tau0p, int m, double *huyen_marco);
+void HuyenMorel_macro_lxy (int ninc, int nelts, ELEMENT_lxy element_lxy[], double alpha, double gamma, double tau0p, int m, double *huyen_marco);
 
 void HuyenMorel_polycrystal_lxy (int ninc, int NGrains, int nsys, GRAIN_lxy grain_lxy[], double alpha, double gamma, double tau0p, int m, double *huyen_poly);
 
@@ -66,10 +66,10 @@ void Papadopoulos_polycrystal_lxy(int ninc, int NGrains, int nsys, GRAIN_lxy gra
 
 void DangVan_crystal_lxy(int ninc, int nsys, GRAIN_lxy &grain_lxy, double alpha);
 
-
+void DangVan_macro_lxy(int ninc,ELEMENT_lxy &element_lxy, double alpha);
 
 /* 函数主体 */
-void HuyenMorel_marco_lxy (int ninc, int nelts, ELEMENT_lxy element_lxy[], double alpha, double gamma, double tau0p, int m, double *huyen_marco)
+void HuyenMorel_macro_lxy (int ninc, int nelts, ELEMENT_lxy element_lxy[], double alpha, double gamma, double tau0p, int m, double *huyen_marco)
 {
     int i,j,k;
     double sig[nelts][ninc][6];
@@ -233,6 +233,30 @@ void DangVan_crystal_lxy(int ninc, int nsys, GRAIN_lxy &ggrain_lxy, double alpha
     F2C_DV_CRYSTAL1(ninc,nsys, sigG, norm, dir, alpha, &dangvanpass);
     ggrain_lxy.dangvan=dangvanpass;
 }
+
+void DangVan_macro_lxy(int ninc,ELEMENT_lxy &element_lxy, double alpha)
+{
+    int i,j,k;
+    double sig[ninc][6];
+
+    {
+        for (j=0;j<ninc;j++)
+        {
+            sig[j][0]=element_lxy.sig[j].a11;
+            sig[j][1]=element_lxy.sig[j].a22;
+            sig[j][2]=element_lxy.sig[j].a33;
+            sig[j][3]=element_lxy.sig[j].a21;
+            sig[j][4]=element_lxy.sig[j].a23;
+            sig[j][5]=element_lxy.sig[j].a13;
+        }
+    }
+
+    double dangvanpass;
+    F2C_DV_Macro(ninc,sig, alpha, &dangvanpass);
+    element_lxy.dangvan=dangvanpass;
+}
+
+
 
 
 

@@ -239,8 +239,8 @@ std::cout<<"sigma calculated"<<std::endl;
 //    }
 
    
-   double t=232.5;
-   double s=147.5;
+   double s=232.5;
+   double t=147.5;
 
    vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
    GetMesh(unstructuredGrid,nnodes,nelts);
@@ -261,7 +261,7 @@ if (J2bool)
    //double dvG[NGrains];
    {
    double dv=0.0;
-   double alpha=(s-t/2.0)/(t/3.0);
+   double alpha=(t-s/2.0)/(s/3.0);
    for (int i=0;i<NGrains;i++)
    {
     DangVan_crystal_lxy(ninc,nsys, grain_lxy[i], alpha);
@@ -322,11 +322,11 @@ if (J2bool)
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    double huyen=0.0;
    //double huyenG[NGrains];
    //double huyenM[nelts];
    {
-   double huyen=0.0;
+   
    //double gamma=2.52e-3;
    //double alpha=0.129;
    //double tau0p=475.0;
@@ -335,7 +335,7 @@ if (J2bool)
    double alpha=0.111;
    double gamma=2.45e-3;
    double tau0p=242.0/1.0;
-   int m=10;
+   int m=5;
 
  if (J2bool)
  {
@@ -358,7 +358,7 @@ if (J2bool)
 }
  else 
  {
-    HuyenMorel_marco_lxy (ninc,nelts,element_lxy, alpha, gamma, tau0p, m, &huyen);
+    HuyenMorel_macro_lxy (ninc,nelts,element_lxy, alpha, gamma, tau0p, m, &huyen);
      
      //F2C_HuyenMorel_MACRO(ninc,nelts,sig,vol,alpha,gamma,tau0p,m,&huyen,huyenM);
     
@@ -374,6 +374,35 @@ if (J2bool)
     }
     unstructuredGrid->GetCellData()->AddArray(vals);
    }
+   
+   
+    {
+   double dv=0.0;
+   double alpha=(t-s/2.0)/(s/3.0);
+   for (int i=0;i<nelts;i++)
+   {
+    DangVan_macro_lxy(ninc,element_lxy[i],alpha);
+
+    if (element_lxy[i].dangvan>dv) {dv= element_lxy[i].dangvan;}
+   }
+    std::cout << "DV " << dv << std::endl;
+   }
+   
+    {
+    vtkSmartPointer<vtkDoubleArray> vals = vtkSmartPointer<vtkDoubleArray>::New();
+    vals->SetNumberOfComponents(1); //we will have only 1 value associated with the triangle
+    vals->SetName("Dang Van J2"); //set the name of the value
+    double scal=0.0;
+    for (int i=0;i<nelts;i++)
+    {
+        scal=element_lxy[i].dangvan;
+        vals->InsertNextValue(scal);
+    }
+    unstructuredGrid->GetCellData()->AddArray(vals);
+   }
+   
+   
+   
 
  }
    
@@ -385,6 +414,8 @@ if (J2bool)
 
 
 //
+
+{
 std::cout<<std::endl;
 std::cout<<std::endl;
 std::cout<<std::endl;
@@ -392,7 +423,6 @@ std::cout<<"***********************************"<<std::endl;
 std::cout<<"    Selected Analysis Conducting"<<std::endl;
 std::cout<<"***********************************"<<std::endl;
 
-{
 //int n_number=5;
 std::vector<int>  layer;
 std::vector<int> center;
@@ -400,7 +430,7 @@ std::string filename;
 filename="tt.geof";
 
 circle_number(filename, center,DEPTH_SEARCH,ZONE_RADIUS );
-layer_number(filename ,layer, 1);
+//layer_number(filename ,layer, 1);
 
 
 std::cout<<"Metis_API excuted"<<std::endl;
@@ -408,10 +438,10 @@ std::cout<<"Metis_API excuted"<<std::endl;
 //std::vector<ELEMENT_lxy> LayerZone;
 
 int centersize=center.size();
-int layersize=layer.size();
+//int layersize=layer.size();
 
 ELEMENT_lxy CircleZone[centersize];
-ELEMENT_lxy LayerZone[layersize];
+//ELEMENT_lxy LayerZone[layersize];
 
 
 
@@ -420,10 +450,8 @@ for(int i=0;i<centersize;i++)
     CircleZone[i]=element_lxy[center[i]];
 }
 
-for(int i=0;i<layersize;i++)
-{
-    LayerZone[i]=element_lxy[layer[i]];
-}
+//for(int i=0;i<layersize;i++) {    LayerZone[i]=element_lxy[layer[i]];}
+
 std::cout<<"Center Size:   "<<centersize<<std::endl;
 //std::cout<<"Layer Size     "<<layersize<<std::endl;
 std::cout<<"Zone Selected"<<std::endl;
@@ -438,17 +466,42 @@ std::cout<<"Zone Selected"<<std::endl;
    double alpha=0.111;
    double gamma=2.45e-3;
    double tau0p=242.0/1.0;
-   int m=10;
+   int m=5;
 
-
-HuyenMorel_marco_lxy (ninc,centersize,CircleZone, alpha, gamma, tau0p, m, &huyenC);
-//HuyenMorel_marco_lxy (ninc,layersize,LayerZone, alpha, gamma, tau0p, m, &huyenL);
-
-std::cout << "HUYEN Circle :" << huyenC << std::endl;
+for (int certainINC=ninc;certainINC>0;certainINC--)
+{   
+HuyenMorel_macro_lxy (certainINC,centersize,CircleZone, alpha, gamma, tau0p, m, &huyenC);
+//HuyenMorel_macro_lxy (certainINC,layersize,LayerZone, alpha, gamma, tau0p, m, &huyenL);
+std::cout <<"at the "<<certainINC<<" INC we have " << "HUYEN Circle :" << huyenC << std::endl;
+if (huyenC <0.5) break;
 //std::cout << "HUYEN Layer: " << huyenL << std::endl;
-
-
 }
+
+double dangvanC=0;
+double volumeC=0;
+//double alphaDV=(t-s/2.0)/(s/3.0);  already in cal.h
+
+for (int certainINC=ninc;certainINC>0;certainINC--)
+{   
+    
+    for( int i=0;i<centersize;i++)
+    {
+        int eleLabel=center[i];
+        DangVan_macro_lxy(certainINC,element_lxy[eleLabel],alphaDV);
+        dangvanC+=element_lxy[eleLabel].dangvan*element_lxy[eleLabel].volume;
+        volumeC+=element_lxy[eleLabel].volume;
+    }
+    dangvanC=dangvanC/volumeC;
+std::cout <<"at the "<<certainINC<<" INC we have " << "DangVan Circle :" << dangvanC << std::endl;
+if (dangvanC<s) break;    
+    
+}
+    
+    
+
+    
+}
+
 //
 
 
