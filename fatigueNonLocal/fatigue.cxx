@@ -477,13 +477,13 @@ if (huyenC <0.5) break;
 //std::cout << "HUYEN Layer: " << huyenL << std::endl;
 }
 
-double dangvanC=0;
-double volumeC=0;
+
+
 //double alphaDV=(t-s/2.0)/(s/3.0);  already in cal.h
 
 for (int certainINC=ninc;certainINC>0;certainINC--)
-{   
-    
+{   double dangvanC=0;
+    double volumeC=0;
     for( int i=0;i<centersize;i++)
     {
         int eleLabel=center[i];
