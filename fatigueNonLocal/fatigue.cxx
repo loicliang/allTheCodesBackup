@@ -332,11 +332,10 @@ if (J2bool)
    //double tau0p=475.0;
    //int m=5;
 
-   double alpha=0.111;
-   double gamma=2.45e-3;
-   double tau0p=242.0/1.0;
+   double alpha=0.241;
+   double gamma=2.79e-3;
+   double tau0p=747.0/1.0;
    int m=5;
-
  if (J2bool)
  {
      HuyenMorel_polycrystal_lxy (ninc,NGrains,nsys,grain_lxy,alpha, gamma, tau0p,m, &huyen);
@@ -463,9 +462,9 @@ std::cout<<"Zone Selected"<<std::endl;
    //double tau0p=475.0;
    //int m=5;
 
-   double alpha=0.111;
-   double gamma=2.45e-3;
-   double tau0p=242.0/1.0;
+   double alpha=0.241;
+   double gamma=2.79e-3;
+   double tau0p=747.0/1.0;
    int m=5;
 
 for (int certainINC=ninc;certainINC>0;certainINC--)
@@ -493,7 +492,7 @@ for (int certainINC=ninc;certainINC>0;certainINC--)
     }
     dangvanC=dangvanC/volumeC;
 std::cout <<"at the "<<certainINC<<" INC we have " << "DangVan Circle :" << dangvanC << std::endl;
-if (dangvanC<s) break;    
+if (dangvanC<t) break;    
     
 }
     
