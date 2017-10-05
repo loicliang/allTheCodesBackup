@@ -10,8 +10,8 @@ limit = DefineNumber[ 1 , Min 1, Max 36, Step 1,
 X_lower_left_corner=0;  
 Y_lower_left_corner=0; 
 Z_lower_left_corner=0;
-Width_Rectangle =   0.5;
-Height_Rectangle =  0.5;
+Width_Rectangle =   4;
+Height_Rectangle =  4;
 
 Radius_circle =  0.05;
 
@@ -29,5 +29,6 @@ BooleanDifference(limit+2) = { Surface{1};Delete; } { Surface{2:limit+1}; Delete
 
 // Set the Characteristic Length
 //**************************************************
-Characteristic Length { 2,2*limit+4} = 0.1;
+Characteristic Length { 2,2*limit+4} = 1;
+Characteristic Length { 1,2*limit+3} = 0.2;
 Characteristic Length { 1:2*limit+4 } = 0.001;
