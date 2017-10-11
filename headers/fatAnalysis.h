@@ -185,6 +185,7 @@ public:
     {
         double huyen=0.0;
         HuyenMorel_macro_lxy (ninc,nelts,element_lxy, alphaHM, gamma, tau0p, m, &huyen);
+        std::cout<<"HM "<<huyen<<std::endl;
         {
         vtkSmartPointer<vtkDoubleArray> vals = vtkSmartPointer<vtkDoubleArray>::New();
         vals->SetNumberOfComponents(1); //we will have only 1 value associated with the triangle
@@ -201,6 +202,55 @@ public:
         return EXIT_SUCCESS;
     }
 
+    int Matake_Analysis(double alphaM, double sbeta)
+    {
+        double matake=0.0;
+        for (int i=0;i<nelts;i++)
+        {
+            Matake_macro_lxy(ninc,element_lxy[i],alphaM);
+            if (element_lxy[i].matake>matake) {matake= element_lxy[i].matake;}
+        }
+        std::cout << "Matake " << matake << std::endl;
+        
+        {
+        vtkSmartPointer<vtkDoubleArray> vals = vtkSmartPointer<vtkDoubleArray>::New();
+        vals->SetNumberOfComponents(1); //we will have only 1 value associated with the triangle
+        vals->SetName("Matake HomoModel"); //set the name of the value
+        double scal=0.0;
+        for (int i=0;i<nelts;i++)
+        {
+            scal=(element_lxy[i].matake)/sbeta;
+            vals->InsertNextValue(scal);          
+        }
+        unstructuredGrid->GetCellData()->AddArray(vals);
+        }
+        return EXIT_SUCCESS;
+    }
+    
+    int Papadopoulos_Analysis(double alphaP,double sbeta)
+    {
+       double papa=0.0;
+       for(int i=0;i<nelts;i++)
+       {
+           Papadopoulos_macro_lxy(ninc,element_lxy[i],alphaP);
+           if (element_lxy[i].papadopoulos > papa) {papa= element_lxy[i].papadopoulos;}
+       }
+       std::cout << "Papadopoulos " << papa << std::endl;
+       {
+            vtkSmartPointer<vtkDoubleArray> vals = vtkSmartPointer<vtkDoubleArray>::New();
+            vals->SetNumberOfComponents(1); //we will have only 1 value associated with the triangle
+            vals->SetName("Papadoupolos HomoModel"); //set the name of the value
+            double scal=0.0;
+            for (int i=0;i<nelts;i++)
+            {
+                scal=(element_lxy[i].papadopoulos)/sbeta;
+                vals->InsertNextValue(scal);          
+            }
+            unstructuredGrid->GetCellData()->AddArray(vals);
+           
+       }
+       return EXIT_SUCCESS; 
+    }
     
     
 };

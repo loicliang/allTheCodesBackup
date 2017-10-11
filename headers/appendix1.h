@@ -31,6 +31,7 @@ struct ELEMENT_lxy
  double huyen;
  double papadopoulos;
  double dangvan;
+ double matake;
  NODE_lxy mid_point;
 };
 
@@ -50,6 +51,7 @@ struct GRAIN_lxy
   double huyen;
   double papadopoulos;
   double dangvan;
+  double matake;
   NODE_lxy mid_point;  
     
 };
@@ -63,10 +65,15 @@ void HuyenMorel_macro_lxy (int ninc, int nelts, ELEMENT_lxy element_lxy[], doubl
 void HuyenMorel_polycrystal_lxy (int ninc, int NGrains, int nsys, GRAIN_lxy grain_lxy[], double alpha, double gamma, double tau0p, int m, double *huyen_poly);
 
 void Papadopoulos_polycrystal_lxy(int ninc, int NGrains, int nsys, GRAIN_lxy grain_lxy[], double alpha, double *papadppoulos);
+void Papadopoulos_macro_lxy(int ninc,ELEMENT_lxy &element_lxy, double alpha);
 
-void DangVan_crystal_lxy(int ninc, int nsys, GRAIN_lxy &grain_lxy, double alpha);
+void DangVan_crystal_lxy(int ninc, int nsys, GRAIN_lxy &ggrain_lxy, double alpha);
 
 void DangVan_macro_lxy(int ninc,ELEMENT_lxy &element_lxy, double alpha);
+
+void Matake_crystal_lxy(int ninc, int nsys, GRAIN_lxy &ggrain_lxy, double alpha);
+
+void Matake_macro_lxy(int ninc,ELEMENT_lxy &element_lxy, double alpha);
 
 /* 函数主体 */
 void HuyenMorel_macro_lxy (int ninc, int nelts, ELEMENT_lxy element_lxy[], double alpha, double gamma, double tau0p, int m, double *huyen_marco)
@@ -196,6 +203,33 @@ void Papadopoulos_polycrystal_lxy(int ninc, int NGrains, int nsys, GRAIN_lxy *gr
     
 }
 
+
+void Papadopoulos_macro_lxy(int ninc,ELEMENT_lxy &element_lxy, double alpha)
+{
+    
+    int i,j,k;
+    double sig[ninc][6];
+
+    {
+        for (j=0;j<ninc;j++)
+        {
+            sig[j][0]=element_lxy.sig[j].a11;
+            sig[j][1]=element_lxy.sig[j].a22;
+            sig[j][2]=element_lxy.sig[j].a33;
+            sig[j][3]=element_lxy.sig[j].a21;
+            sig[j][4]=element_lxy.sig[j].a23;
+            sig[j][5]=element_lxy.sig[j].a13;
+        }
+    }
+
+    double pappass;
+    F2C_Papadopoulos_Macro(ninc,sig, alpha, &pappass);
+    element_lxy.papadopoulos=pappass;
+    
+    
+}
+
+
 void DangVan_crystal_lxy(int ninc, int nsys, GRAIN_lxy &ggrain_lxy, double alpha)
 {
     int i,j,k;
@@ -257,8 +291,65 @@ void DangVan_macro_lxy(int ninc,ELEMENT_lxy &element_lxy, double alpha)
 }
 
 
+void Matake_crystal_lxy(int ninc, int nsys, GRAIN_lxy &ggrain_lxy, double alpha)
+{
+    int i,j,k;
+    double sigG[ninc][6];
+    double norm[nsys][3];
+    double dir[nsys][3];
+  
+    {
+        for (j=0;j<ninc;j++)
+        {
+            sigG[j][0]=ggrain_lxy.sig[j].a11;
+            sigG[j][1]=ggrain_lxy.sig[j].a22;
+            sigG[j][2]=ggrain_lxy.sig[j].a33;
+            sigG[j][3]=ggrain_lxy.sig[j].a21;
+            sigG[j][4]=ggrain_lxy.sig[j].a23;
+            sigG[j][5]=ggrain_lxy.sig[j].a13;
+        }
+    }
+    
+   
+    {
+        for (j=0;j<nsys;j++)
+        {
+            norm[j][0]=ggrain_lxy.norm[j].a1;
+            norm[j][1]=ggrain_lxy.norm[j].a2;
+            norm[j][2]=ggrain_lxy.norm[j].a3;
+         
+            dir[j][0]=ggrain_lxy.dir[j].a1;
+            dir[j][1]=ggrain_lxy.dir[j].a2;
+            dir[j][2]=ggrain_lxy.dir[j].a3;
+            
+        }
+    }
+    double matakepass;
+    F2C_DV_CRYSTAL1(ninc,nsys, sigG, norm, dir, alpha, &matakepass);
+    ggrain_lxy.matake=matakepass;
+}
 
+void Matake_macro_lxy(int ninc,ELEMENT_lxy &element_lxy, double alpha)
+{
+    int i,j,k;
+    double sig[ninc][6];
 
+    {
+        for (j=0;j<ninc;j++)
+        {
+            sig[j][0]=element_lxy.sig[j].a11;
+            sig[j][1]=element_lxy.sig[j].a22;
+            sig[j][2]=element_lxy.sig[j].a33;
+            sig[j][3]=element_lxy.sig[j].a21;
+            sig[j][4]=element_lxy.sig[j].a23;
+            sig[j][5]=element_lxy.sig[j].a13;
+        }
+    }
+
+    double matakepass;
+    F2C_Matake_Macro(ninc,sig, alpha, &matakepass);
+    element_lxy.matake=matakepass;
+}
 
 #endif
 
