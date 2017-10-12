@@ -271,7 +271,14 @@ WriteGEOF<<"***group"<<std::endl;
         if ( AllNodes[i].y_coord==YMIN ) WriteGEOF<<AllNodes[i].n<<' ';
     }
     WriteGEOF<<std::endl;
-
+//Boundary right
+    WriteGEOF<<"**nset x1"<<std::endl;
+    for ( int i=0; i< cycletimesnode;i++ )
+    {
+        if ( AllNodes[i].x_coord==XMAX ) WriteGEOF<<AllNodes[i].n<<' ';
+    }
+    WriteGEOF<<std::endl;
+    
 //faset Xone (load)
 if(!file_is_poly)
 {
@@ -300,10 +307,10 @@ if(!file_is_poly)
     }
 }
 //？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？
-// 之前旧的多晶体模型还没有适配！！！！！！
+// 之前旧的多晶体模型还没有适配！！！！！！因为里面没有线段的分类
 //？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？
 
-//Grains output
+//Grains Sets output
 if (file_is_poly)
 {   int last_line;
     last_line=-1;
