@@ -278,8 +278,40 @@ WriteGEOF<<"***group"<<std::endl;
         if ( AllNodes[i].x_coord==XMAX ) WriteGEOF<<AllNodes[i].n<<' ';
     }
     WriteGEOF<<std::endl;
-    
-//faset Xone (load)
+
+//Corner leftbottom
+    WriteGEOF<<"**nset leftbottom"<<std::endl;
+    for ( int i=0; i< cycletimesnode;i++ )
+    {
+        if ( AllNodes[i].x_coord==XMIN && AllNodes[i].y_coord==YMIN ) WriteGEOF<<AllNodes[i].n<<' ';
+    }
+    WriteGEOF<<std::endl;
+
+//Corner rightbottom
+    WriteGEOF<<"**nset rightbottom"<<std::endl;
+    for ( int i=0; i< cycletimesnode;i++ )
+    {
+        if ( AllNodes[i].x_coord==XMAX && AllNodes[i].y_coord==YMIN ) WriteGEOF<<AllNodes[i].n<<' ';
+    }
+    WriteGEOF<<std::endl;
+
+//Corner lefttop
+    WriteGEOF<<"**nset lefttop"<<std::endl;
+    for ( int i=0; i< cycletimesnode;i++ )
+    {
+        if ( AllNodes[i].x_coord==XMIN && AllNodes[i].y_coord==YMAX ) WriteGEOF<<AllNodes[i].n<<' ';
+    }
+    WriteGEOF<<std::endl;
+
+//Corner righttop
+    WriteGEOF<<"**nset righttop"<<std::endl;
+    for ( int i=0; i< cycletimesnode;i++ )
+    {
+        if ( AllNodes[i].x_coord==XMAX && AllNodes[i].y_coord==YMAX ) WriteGEOF<<AllNodes[i].n<<' ';
+    }
+    WriteGEOF<<std::endl;
+
+//faset Xone Xzero Yzero (load)
 if(!file_is_poly)
 {
     WriteGEOF<<"**faset Xone"<<std::endl;
@@ -293,6 +325,54 @@ if(!file_is_poly)
             leftnode=AllElements[i].node_list[0];
             rightnode=AllElements[i].node_list[1];
             if( (AllNodes[leftnode-1].x_coord==XMAX) and (AllNodes[rightnode-1].x_coord==XMAX)   )
+            //if ( IsRightEdge() !=false ) 不典型，不太好
+            {
+
+                std::string astring;
+                astring=EdgeName(ntype);
+                WriteGEOF<<astring;
+                for( int j=0; j<AllElements[i].node_list.size(); j++) WriteGEOF<<' '<<AllElements[i].node_list[j];
+                WriteGEOF<<std::endl;
+            }
+        }
+
+    }
+
+    WriteGEOF<<"**faset Xzero"<<std::endl;
+    for ( int i=0; i<cycletimeselement;i++ )
+    {
+        int ntype=AllElements[i].elmtype;
+        if ( IsEdge(ntype) != false )
+        {
+
+            int rightnode,leftnode;
+            leftnode=AllElements[i].node_list[0];
+            rightnode=AllElements[i].node_list[1];
+            if( (AllNodes[leftnode-1].x_coord==XMIN) and (AllNodes[rightnode-1].x_coord==XMIN)   )
+            //if ( IsRightEdge() !=false ) 不典型，不太好
+            {
+
+                std::string astring;
+                astring=EdgeName(ntype);
+                WriteGEOF<<astring;
+                for( int j=0; j<AllElements[i].node_list.size(); j++) WriteGEOF<<' '<<AllElements[i].node_list[j];
+                WriteGEOF<<std::endl;
+            }
+        }
+
+    }
+
+     WriteGEOF<<"**faset Yzero"<<std::endl;
+    for ( int i=0; i<cycletimeselement;i++ )
+    {
+        int ntype=AllElements[i].elmtype;
+        if ( IsEdge(ntype) != false )
+        {
+
+            int rightnode,leftnode;
+            leftnode=AllElements[i].node_list[0];
+            rightnode=AllElements[i].node_list[1];
+            if( (AllNodes[leftnode-1].y_coord==YMIN) and (AllNodes[rightnode-1].y_coord==YMIN)   )
             //if ( IsRightEdge() !=false ) 不典型，不太好
             {
 
