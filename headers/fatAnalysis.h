@@ -253,6 +253,45 @@ public:
     }
     
     
+    
+    int NonLocalCircleAnalysis()
+    {
+     
+        std::cout<<"***********************************"<<std::endl;
+        std::cout<<"   Non Local Analysis Conducting   "<<std::endl;
+        std::cout<<"***********************************"<<std::endl;
+        std::vector<int> center;
+        std::string filename;
+        filename="tt.geof";
+    
+        circle_number(filename, center,DEPTH_SEARCH,ZONE_RADIUS );
+        int centersize=center.size();
+        ELEMENT_lxy CircleZone[centersize];
+        
+        for(int i=0;i<centersize;i++)
+        {
+            CircleZone[i]=element_lxy[center[i]];
+        }
+        
+        for (int certainINC=ninc;certainINC>0;certainINC--)
+        {   
+            double dangvanC=0;
+            double volumeC=0;
+            for( int i=0;i<centersize;i++)
+            {
+                int eleLabel=center[i];
+                DangVan_macro_lxy(certainINC,element_lxy[eleLabel],alphaDV);
+                dangvanC+=element_lxy[eleLabel].dangvan*element_lxy[eleLabel].volume;
+                volumeC+=element_lxy[eleLabel].volume;
+            }
+            dangvanC=dangvanC/volumeC;
+            std::cout <<"at the "<<certainINC<<" INC we have " << "DangVan Circle :" << dangvanC << std::endl;
+            if (dangvanC<t) break;    
+        }
+        
+        return EXIT_SUCCESS; 
+    }
+    
 };
 
 
