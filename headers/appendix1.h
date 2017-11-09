@@ -4,6 +4,13 @@
 #include "cal.h"
 #include "fatigue_lib.h"
 
+struct PT_lxy
+{
+    double x;
+    double y;
+    double z;
+}
+
 struct NODE_lxy
 {
     int n;
@@ -32,7 +39,7 @@ struct ELEMENT_lxy
  double papadopoulos;
  double dangvan;
  double matake;
- NODE_lxy mid_point;
+ point3 mid_point;
 };
 
 struct GRAIN_lxy
@@ -52,7 +59,7 @@ struct GRAIN_lxy
   double papadopoulos;
   double dangvan;
   double matake;
-  NODE_lxy mid_point;  
+  point3 mid_point;  
     
 };
 
@@ -325,7 +332,7 @@ void Matake_crystal_lxy(int ninc, int nsys, GRAIN_lxy &ggrain_lxy, double alpha)
         }
     }
     double matakepass;
-    F2C_DV_CRYSTAL1(ninc,nsys, sigG, norm, dir, alpha, &matakepass);
+    F2C_Matake_CRYSTAL(ninc,nsys, sigG, norm, dir, alpha, &matakepass);
     ggrain_lxy.matake=matakepass;
 }
 

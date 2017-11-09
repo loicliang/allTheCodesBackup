@@ -38,7 +38,7 @@ struct Vector_3d
     double length() const{ return sqrt(sqrlen()); }
 
 };
-
+void neighbors(std::string filename ,std::vector<int> & center, int n_number );
 void circle_number(std::string filename, std::vector<int> & center, int n_number ,double zoneRadius);
 void layer_number(std::string filename ,std::vector<int> & layer, int n_number );
 
@@ -113,8 +113,8 @@ void mesh2dual(std::string filename, std::vector<int> &ary_xadj, std::vector<int
     idx_t ne=axadj.size()-1;
 
     std::vector<int>::iterator biggest = std::max_element(aadjncy.begin(), aadjncy.end());
-    idx_t nn=*biggest;
-
+    //idx_t nn=*biggest; //以前都用的很正常，现在放到服务器上又说不对，好不容易做的找最大值，原来它要的就是单纯的点被数了多少次，也不知道以前是怎么运行的
+    idx_t nn=NN;
     idx_t ncommon=1;
     idx_t numflag=0;
 
@@ -130,8 +130,7 @@ void mesh2dual(std::string filename, std::vector<int> &ary_xadj, std::vector<int
     idx_t *adjncy;
 
 
-    int res;
-    res=METIS_MeshToDual(&ne,&nn,eptr,eind,&ncommon,&numflag,&xadj,&adjncy);
+    METIS_MeshToDual(&ne,&nn,eptr,eind,&ncommon,&numflag,&xadj,&adjncy);
 
     int i,j;
     i=0;
@@ -347,11 +346,12 @@ void circle_number(std::string filename ,std::vector<int> & center, int n_number
     if (distance2Center.size()!= (xadj.size()-1) ) exit(1);
 
     int begin_circle,end_circle;
-    begin_circle=0;
-    end_circle=center.size();
+
 
     while (n_number>1)
     {
+        begin_circle=0;
+        end_circle=center.size();
         for (int i=begin_circle;i<end_circle;i++)
         {
             int t1,t2;
@@ -367,6 +367,36 @@ void circle_number(std::string filename ,std::vector<int> & center, int n_number
 
         begin_circle=end_circle;
         end_circle=center.size();
+        n_number--;
+    }
+
+
+}
+
+void neighbors(std::string filename ,std::vector<int> & center, int n_number )
+{
+
+    std::vector<double> distance2Center;
+    std::vector<int> xadj; std::vector<int> adjncy;
+    mesh2dual(filename,xadj,adjncy);
+
+    int begin_circle,end_circle;
+
+    while (n_number>1)
+    {
+        begin_circle=0;
+        end_circle=center.size();
+        for (int i=begin_circle;i<end_circle;i++)
+        {
+            int t1,t2;
+            t1=xadj[center[i]];t2=xadj[center[i]+1]-1;
+            for( int i=t1;i<t2;i++)
+            {
+                center.push_back(adjncy[i]);
+            }
+        }
+        sort(center.begin(),center.end());
+        center.erase(unique(center.begin(),center.end()),center.end());
         n_number--;
     }
 

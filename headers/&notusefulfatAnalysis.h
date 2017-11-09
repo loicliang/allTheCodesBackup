@@ -93,7 +93,6 @@ class HomoModel: public NumericalResults //only elements
 protected:
    // ELEMENT_lxy element_lxy[nelts];
     ELEMENT_lxy *element_lxy;
-   
 public:
     int Fin_Elements()
     {        
@@ -116,7 +115,8 @@ public:
         Init_Analysis(file_NAME);
         
         Set_ElementSize(nelts);
-
+        
+        
 //read volume        
         for (int i=0;i<nelts;i++)  
         {
@@ -125,17 +125,6 @@ public:
             dodoF2C_GetElementVolume(i+1, &voltemp);
             element_lxy[i].volume=voltemp;
         }
-//read position        
-        for (int i=1;i<nelts;i++)
-        {
-            double pos[3];
-            dodoF2C_GetElementPosition(i+1,pos);
-            element_lxy[i].mid_point.x=pos[0];
-            element_lxy[i].mid_point.y=pos[1];
-            element_lxy[i].mid_point.z=pos[2];        
-        }
-
-        
 //read stress
         ninc=0;ierr=0;
         for (int f=0;f<nframes+1;f++)
@@ -184,53 +173,13 @@ public:
         double scal=0.0;
         for (int i=0;i<nelts;i++)
         {
-            scal=(element_lxy[i].dangvan);
+            scal=(element_lxy[i].dangvan)/sbeta;
             vals->InsertNextValue(scal);          
         }
         unstructuredGrid->GetCellData()->AddArray(vals);
         }
         return EXIT_SUCCESS;
     }
-    
-    int DangVan_Analysis(double alphaDV, double sbeta, int neighbors_depth,double radius_circle=0.014)
-    {
-        std::string filename;
-        filename="tt.geof";
-        std::vector<int> center;
-        double dv=0.0; int centerOne;
-        for (int i=0;i<nelts;i++)
-        {
-            DangVan_macro_lxy(ninc,element_lxy[i],alphaDV);
-            if (element_lxy[i].dangvan>dv) {dv= element_lxy[i].dangvan;centerOne=i;}
-        }
-        center.erase(center.begin(),center.end());
-        center.push_back(centerOne);
-          
-        neighbors(filename, center,neighbors_depth);
-        int centersize=center.size();
-        ELEMENT_lxy CircleZone[centersize];
-		
-		int seq=0;
-		for(int i=0;i<centersize;i++)
-        {
-            if( (element_lxy[center[i]].mid_point - element_lxy[centerOne].mid_point).length() <  radius_circle )//distance between two elements 
-            {CircleZone[seq]=element_lxy[center[i]];seq++;}
-        }
-        centersize=seq;
-         
-        double dangvanC=0;
-        double volumeC=0;
-        for( int i=0;i<centersize;i++)
-        {
-            dangvanC+=CircleZone[i].dangvan*CircleZone[i].volume;
-            volumeC+=CircleZone[i].volume;
-        }
-        dangvanC=dangvanC/volumeC;
-        std::cout << "DV NonLocal" << dangvanC <<"Volume:"<<volumeC<<"   eltNumbers:"<<centersize <<std::endl;
-        return EXIT_SUCCESS;
-    }
-    
-    
     
     int HuyenMorel_Analysis(double alphaHM, double gamma, double tau0p, int m)
     {
@@ -270,55 +219,13 @@ public:
         double scal=0.0;
         for (int i=0;i<nelts;i++)
         {
-            scal=(element_lxy[i].matake);
+            scal=(element_lxy[i].matake)/sbeta;
             vals->InsertNextValue(scal);          
         }
         unstructuredGrid->GetCellData()->AddArray(vals);
         }
         return EXIT_SUCCESS;
     }
-    
-    int Matake_Analysis(double alphaM, double sbeta,int neighbors_depth,double radius_circle=0.014)
-    {
-		std::string filename;
-        filename="tt.geof";
-        std::vector<int> center;
-        double matake=0.0;int centerOne;
-        for (int i=0;i<nelts;i++)
-        {
-            Matake_macro_lxy(ninc,element_lxy[i],alphaM);
-            if (element_lxy[i].matake>matake) {matake= element_lxy[i].matake;centerOne=i;}
-        }
-        center.erase(center.begin(),center.end());
-        center.push_back(centerOne);
-          
-        neighbors(filename, center,neighbors_depth);
-        int centersize=center.size();
-        ELEMENT_lxy CircleZone[centersize];
-		
-		int seq=0;
-		for(int i=0;i<centersize;i++)
-        {
-            if( (element_lxy[center[i]].mid_point - element_lxy[centerOne].mid_point).length() <  radius_circle )//distance between two elements 
-            {CircleZone[seq]=element_lxy[center[i]];seq++;}
-        }
-        centersize=seq;
-         
-        double matakeC=0;
-        double volumeC=0;
-        for( int i=0;i<centersize;i++)
-        {
-            matakeC+=CircleZone[i].matake*CircleZone[i].volume;
-            volumeC+=CircleZone[i].volume;
-        }
-        matakeC=matakeC/volumeC;
-        std::cout << "Matake NonLocal" << matakeC <<"Volume:"<<volumeC<< std::endl;
-        
-        
-        
-        return EXIT_SUCCESS;
-    }
-    
     
     int Papadopoulos_Analysis(double alphaP,double sbeta)
     {
@@ -336,7 +243,7 @@ public:
             double scal=0.0;
             for (int i=0;i<nelts;i++)
             {
-                scal=(element_lxy[i].papadopoulos);
+                scal=(element_lxy[i].papadopoulos)/sbeta;
                 vals->InsertNextValue(scal);          
             }
             unstructuredGrid->GetCellData()->AddArray(vals);
@@ -344,44 +251,7 @@ public:
        }
        return EXIT_SUCCESS; 
     }
-    int Papadopoulos_Analysis(double alphaP,double sbeta,int neighbors_depth,double radius_circle=0.014)
-    {
-	   std::string filename;
-       filename="tt.geof";
-       std::vector<int> center;
-       double papa=0.0;int centerOne;
-       for(int i=0;i<nelts;i++)
-       {
-           Papadopoulos_macro_lxy(ninc,element_lxy[i],alphaP);
-           if (element_lxy[i].papadopoulos > papa) {papa= element_lxy[i].papadopoulos;centerOne=i;}
-       }
-       center.erase(center.begin(),center.end());
-       center.push_back(centerOne);
-          
-       neighbors(filename, center,neighbors_depth);
-       int centersize=center.size();
-       ELEMENT_lxy CircleZone[centersize];
-		
-	   int seq=0;
-	   for(int i=0;i<centersize;i++)
-       {
-            if( (element_lxy[center[i]].mid_point - element_lxy[centerOne].mid_point).length() <  radius_circle )//distance between two elements 
-            {CircleZone[seq]=element_lxy[center[i]];seq++;}
-       }
-        centersize=seq;
-         
-        double papaC=0;
-        double volumeC=0;
-        for( int i=0;i<centersize;i++)
-        {
-            papaC+=CircleZone[i].papadopoulos*CircleZone[i].volume;
-            volumeC+=CircleZone[i].volume;
-        }
-        papaC=papaC/volumeC;
-        std::cout << "Pap NonLocal" << papaC <<"Volume:"<<volumeC<< std::endl;
-        
-       return EXIT_SUCCESS; 
-    }
+    
     
     
     int NonLocalCircleAnalysis(double alphaDV,double sbeta)
@@ -651,115 +521,6 @@ public:
 		}
         return EXIT_SUCCESS;
     }
-    
-    
-    
-    int cubDangVan_Analysis(double alphaDV, double sbeta)
-    {
-		
-		double dv=0.0;
-        for (int i=0;i<nelts;i++)
-        {
-            DangVan_macro_lxy(ninc,element_lxy[i],alphaDV);
-            grain_lxy[element_lxy[i].gr].dangvan+=element_lxy[i].dangvan*element_lxy[i].volume;
-        }
-        
-        for (int i=0;i<NGrains;i++)
-        {
-			grain_lxy[i].dangvan/=grain_lxy[i].volume;
-			if(grain_lxy[i].dangvan>dv) {dv=grain_lxy[i].dangvan;}
-		}
-        std::cout << "DV " << dv << std::endl;
-   
-		{
-		vtkSmartPointer<vtkDoubleArray> vals = vtkSmartPointer<vtkDoubleArray>::New();
-		vals->SetNumberOfComponents(1); //we will have only 1 value associated with the triangle
-		vals->SetName("Dang Van"); //set the name of the value
-		double scal=0.0;
-		for (int i=0;i<nelts;i++) 
-		{
-			if (element_lxy[i].gr==-1) {scal=0.0;}
-			else {scal=grain_lxy[element_lxy[i].gr].dangvan;}
-			vals->InsertNextValue(scal);
-		}
-		unstructuredGrid->GetCellData()->AddArray(vals);
-		}
-		return EXIT_SUCCESS;
-	}
-    
-    
-    int cubPapadopoulos_Analysis(double alphaP,double sbeta)
-    {
-		double papadopoulos=0.0;
-		for(int i=0;i<nelts;i++)
-       {
-           Papadopoulos_macro_lxy(ninc,element_lxy[i],alphaP);
-           grain_lxy[element_lxy[i].gr].papadopoulos+=element_lxy[i].papadopoulos*element_lxy[i].volume;
-       }
-       for (int i=0;i<NGrains;i++)
-        {
-			grain_lxy[i].papadopoulos/=grain_lxy[i].volume;
-			if(grain_lxy[i].papadopoulos>papadopoulos) {papadopoulos=grain_lxy[i].papadopoulos;}
-		}
-       
-		std::cout << "PAPADOPOULOS :" << papadopoulos << std::endl;
-
-		{
-		vtkSmartPointer<vtkDoubleArray> vals = vtkSmartPointer<vtkDoubleArray>::New();
-		vals->SetNumberOfComponents(1); //we will have only 1 value associated with the triangle
-		vals->SetName("Papadopoulos"); //set the name of the value
-		double scal=0.0;
-		for (int i=0;i<nelts;i++) {
-		if (element_lxy[i].gr==-1) {scal=0.0;}
-		else {scal=grain_lxy[element_lxy[i].gr].papadopoulos;}
-		vals->InsertNextValue(scal);
-		}
-		unstructuredGrid->GetCellData()->AddArray(vals);
-		} 
-		return EXIT_SUCCESS;	
-	}
-	
-	
-	int cubMatake_Analysis(double alphaM, double sbeta)
-    {
-        double matake=0.0;
-        for (int i=0;i<nelts;i++)
-        {
-            Matake_macro_lxy(ninc,element_lxy[i],alphaM);
-            grain_lxy[element_lxy[i].gr].matake+=element_lxy[i].matake*element_lxy[i].volume;
-        }
-        
-        for (int i=0;i<NGrains;i++)
-        {
-			grain_lxy[i].matake/=grain_lxy[i].volume;
-			if(grain_lxy[i].matake>matake) {matake=grain_lxy[i].matake;}
-		}
-        
-		std::cout << "Matake " << matake << std::endl;
-   
-		{
-		vtkSmartPointer<vtkDoubleArray> vals = vtkSmartPointer<vtkDoubleArray>::New();
-		vals->SetNumberOfComponents(1); //we will have only 1 value associated with the triangle
-		vals->SetName("Matake"); //set the name of the value
-		double scal=0.0;
-		for (int i=0;i<nelts;i++) 
-		{
-			if (element_lxy[i].gr==-1) {scal=0.0;}
-			else {scal=grain_lxy[element_lxy[i].gr].matake;}
-			vals->InsertNextValue(scal);
-		}
-		unstructuredGrid->GetCellData()->AddArray(vals);
-		}
-        return EXIT_SUCCESS;
-    }
-    
-    
-    
-    
-    
-    
-    
-    
 	
 	
 };
