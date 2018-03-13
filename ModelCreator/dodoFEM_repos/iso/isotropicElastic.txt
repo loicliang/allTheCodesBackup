@@ -1,0 +1,4 @@
+# isotropic elastic
+IsoElast
+194000.0 0.284
+

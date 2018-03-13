@@ -1,0 +1,142 @@
+
+
+$Parameters
+ Matrix.Sym 1
+ Boundary.Method 2
+ Solve.Tol 1.0d-5
+$End
+
+
+$GlobalDOF
+ 2_5D
+$End
+
+
+$Mesh 
+ Z7 "model.geof"
+$End
+
+
+$Constitutives
+! Mat1 "IsoElast.constitutive"
+! Mat2 "CubElast.constitutive"
+ Mat3 "316L_J2.txt"
+! Mat4 "316L_CP-mod.txt"
+$End
+
+
+
+$Behaviour
+! Grains Voigt 1 Mat4 1.0
+ ALL_ELEMENTS Voigt 1 Mat3 1.0
+!J2 Voigt 1 Mat3 1.0
+$End
+
+
+
+
+$Resolution
+ $Step
+  Time 1.0
+  Increments 200
+  Cycle 5
+  Output 1 10
+ $End
+$End
+
+
+$Tables
+ $Table
+  Name zero
+  Type Constant
+  Values 0.0
+ $End
+  $Table
+  Name sigma50
+  Type Tabular
+  Time   0.0   0.25   0.75    1.0
+  Values 0.0   50  -50   0.0
+  $End
+   $Table
+  Name sigma75
+  Type Tabular
+  Time   0.0   0.25   0.75    1.0
+  Values 0.0   75  -75   0.0
+  $End
+ $Table
+  Name sigma100
+  Type Tabular
+  Time   0.0   0.25   0.75    1.0
+  Values 0.0   100  -100   0.0
+  $End
+ $Table
+  Name sigma125
+  Type Tabular
+  Time   0.0   0.25   0.75    1.0
+  Values 0.0   125  -125   0.0
+  $End
+ $Table
+  Name sigma150
+  Type Tabular
+  Time   0.0   0.25   0.75    1.0
+  Values 0.0   150  -150   0.0
+  $End
+ $Table
+  Name sigma175
+  Type Tabular
+  Time   0.0   0.25   0.75    1.0
+  Values 0.0   175  -175   0.0
+  $End
+   $Table
+  Name sigma200
+  Type Tabular
+  Time   0.0   0.25   0.75    1.0
+  Values 0.0   200  -200   0.0
+  $End
+   $Table
+  Name sigma225
+  Type Tabular
+  Time   0.0   0.25   0.75    1.0
+  Values 0.0   225  -225   0.0
+  $End
+   $Table
+  Name sigma250
+  Type Tabular
+  Time   0.0   0.25   0.75    1.0
+  Values 0.0   250  -250   0.0
+  $End
+   $Table
+  Name sigma275
+  Type Tabular
+  Time   0.0   0.25   0.75    1.0
+  Values 0.0   275  -275   0.0
+  $End
+   $Table
+  Name sigma300
+  Type Tabular
+  Time   0.0   0.25   0.75    1.0
+  Values 0.0   300  -300   0.0
+  $End
+   $Table
+  Name sigma325
+  Type Tabular
+  Time   0.0   0.25   0.75    1.0
+  Values 0.0   325  -325   0.0
+  $End
+  $Table
+  Name sigma232_5
+  Type Tabular
+  Time   0.0   0.25   0.75    1.0
+  Values 0.0   232.5  -232.5   0.0
+  $End
+$End
+
+$Boundary
+ NSET x0 U 1 zero zero zero zero zero zero zero
+ NSET y0 U 2 zero zero zero zero zero zero zero
+ FSET Xone P sigma100 sigma125 sigma150 sigma175 sigma200 sigma225 sigma232_5
+$End
+
+
+  
+ 
